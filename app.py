@@ -7,13 +7,13 @@ app.secret_key = "segredo_seguro_produto"
 
 DB_NAME = "database.db"
 UPLOAD_FOLDER = "uploads"
-ALLOWED_EXT = {"png","jpg","jpeg","pdf"}
+ALLOWED_EXT = {"png", "jpg", "jpeg", "pdf"}
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def allowed_file(filename):
-    return "." in filename and filename.rsplit(".",1)[1].lower() in ALLOWED_EXT
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXT
 
 def init_db():
     conn = sqlite3.connect(DB_NAME)
@@ -37,7 +37,7 @@ def init_db():
                     status TEXT DEFAULT 'Pendente',
                     FOREIGN KEY(usuario_id) REFERENCES usuarios(id)
                 )""")
-    # create default admin if not exists
+    # cria admin padrão
     c.execute("SELECT id FROM usuarios WHERE email=?", ("admin@reembolso.com",))
     if not c.fetchone():
         c.execute("INSERT INTO usuarios (nome, email, senha, admin) VALUES (?, ?, ?, ?)",
@@ -74,24 +74,25 @@ def login():
     flash("Usuário ou senha inválidos.")
     return redirect(url_for("home"))
 
-@app.route('/registrar', methods=["GET","POST"])
-def registrar():
+# === ROTA DE CADASTRO (corrigida) ===
+@app.route('/register', methods=["GET", "POST"])
+def register():
     if request.method == "POST":
-        nome = request.form.get("nome")
-        email = request.form.get("email")
-        senha = request.form.get("senha")
+        nome = request.form["name"]
+        email = request.form["email"]
+        senha = request.form["password"]
         try:
             conn = sqlite3.connect(DB_NAME)
             c = conn.cursor()
             c.execute("INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)", (nome, email, senha))
             conn.commit()
             conn.close()
-            flash("Conta criada com sucesso! Faça login.")
-            return redirect(url_for("home"))
-        except Exception as e:
-            flash("Erro ao criar conta — email pode já estar cadastrado.")
-            return redirect(url_for("registrar"))
-    return render_template("registro.html")
+            flash("Cadastro realizado com sucesso! Faça login para continuar.", "success")
+            return redirect("/")
+        except Exception:
+            flash("Erro ao criar conta. E-mail pode já estar cadastrado.", "error")
+            return redirect(url_for("register"))
+    return render_template("register.html")
 
 @app.route('/dashboard')
 def dashboard():
@@ -164,6 +165,6 @@ def logout():
     session.clear()
     return redirect(url_for("home"))
 
+# === EXECUÇÃO LOCAL ===
 if __name__ == "__main__":
-    # For local development; production uses Procfile + gunicorn
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
