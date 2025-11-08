@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrar</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f7f7f7; text-align: center; margin-top: 80px; }
+    form { background: white; padding: 20px; display: inline-block; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input { display: block; margin: 10px auto; padding: 10px; width: 80%; }
+    button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    a { text-decoration: none; color: #007bff; }
+  </style>
+</head>
+<body>
+  <h2>Criar Conta</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <p style="color: red;">{{ msg }}</p>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST">
+    <input type="text" name="name" placeholder="Nome completo" required>
+    <input type="email" name="email" placeholder="E-mail" required>
+    <input type="password" name="password" placeholder="Senha" required>
+    <button type="submit">Cadastrar</button>
+  </form>
+
+  <p><a href="/">Voltar ao Login</a></p>
+</body>
+</html>
